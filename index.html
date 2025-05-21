@@ -2,86 +2,254 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LTTng Tracing Configuration</title>
-    <style>
-        label {
-            display: block;
-            margin-bottom: 10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LTTng Tracing Configurator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    h1 {
+      color: #007bff;
+    }
+
+    form {
+      background: #ffffff;
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      max-width: 750px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
+    .indent {
+      margin-left: 20px;
+    }
+
+    .help {
+      color: #888;
+      font-size: 0.9em;
+      margin-left: 5px;
+    }
+
+    .tooltip {
+      color: #007bff;
+      cursor: help;
+      text-decoration: underline dotted;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      padding: 5px;
+      margin-top: 5px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    #traceCommands {
+      white-space: pre-wrap;
+      background: #e9ecef;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 20px;
+      font-family: monospace;
+    }
+
+    .actions {
+      margin-top: 15px;
+    }
+
+    .actions button {
+      padding: 8px 16px;
+      margin-right: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .actions button:hover {
+      background-color: #0056b3;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
-    <h1>LTTng Tracing Configuration</h1>
-    <form id="lttngForm">
-        <label><input type="checkbox" id="kernelCheckbox" onchange="generateTraceCommands()"> Kernel</label>
-        <ul>
-            <li><label><input type="checkbox" id="syscallCheckbox" onchange="generateTraceCommands()"> Syscall</label>
-            </li>
-        </ul>
+  <h1>LTTng Tracing Configurator</h1>
+  <form id="lttngForm">
+    <div class="section">
+      <label>
+        Session Name:
+        <input type="text" id="sessionName" placeholder="e.g. trace_debug" oninput="generateTraceCommands()" />
+      </label>
 
-        <label><input type="checkbox" id="ustCheckbox" onchange="generateTraceCommands()"> UST</label>
-        <ul><label>
-                <li><input type="checkbox" id="callstackCheckbox" onchange="generateTraceCommands()"> Callstack
-            </label></li>
-            <li>
-                <label><input type="checkbox" id="memoryCheckbox" onchange="generateTraceCommands()"> Memory</label>
-            </li>
-            <li>
-                <label><input type="checkbox" id="dlCheckbox" onchange="generateTraceCommands()"> DL</label>
-            </li>
-            <li>
-                <label><input type="checkbox" id="forkCheckbox" onchange="generateTraceCommands()"> Fork</label>
-            </li>
-        </ul>
-    </form>
-    <pre id="traceCommands"></pre>
+      <label>
+        Program to Run:
+        <input type="text" id="programPath" placeholder="e.g. ./your_program" oninput="generateTraceCommands()" />
+        <span class="tooltip" title="This is the program that will be traced. Use the full path or relative command.">(?)</span>
+      </label>
+    </div>
 
-    <script>
-        function generateTraceCommands() {
-            const kernelCheckbox = document.getElementById('kernelCheckbox');
-            const syscallCheckbox = document.getElementById('syscallCheckbox');
-            const ustCheckbox = document.getElementById('ustCheckbox');
-            const callstackCheckbox = document.getElementById('callstackCheckbox');
-            const memoryCheckbox = document.getElementById('memoryCheckbox');
-            const dlCheckbox = document.getElementById('dlCheckbox');
-            const forkCheckbox = document.getElementById('forkCheckbox');
+    <div class="section">
+      <label><input type="checkbox" id="kernelCheckbox" onchange="generateTraceCommands()" />
+        Enable Kernel Tracing
+        <span class="tooltip" title="Trace Linux kernel events like scheduling and interrupts.">(?)</span>
+      </label>
+      <div class="indent">
+        <label><input type="checkbox" id="syscallCheckbox" onchange="generateTraceCommands()" />
+          Trace Syscalls
+          <span class="tooltip" title="Capture system call events like open(), read(), write().">(?)</span>
+        </label>
+      </div>
+    </div>
 
-            let commands = 'lttng create session';
-            let preloads = []
+    <div class="section">
+      <label><input type="checkbox" id="ustCheckbox" onchange="toggleUstOptions()" />
+        Enable UST (User-Space Tracing)
+        <span class="tooltip" title="Trace events emitted from user-space applications.">(?)</span>
+      </label>
+      <div class="indent" id="ustOptions" class="hidden">
+        <label><input type="checkbox" id="callstackCheckbox" onchange="generateTraceCommands()" />
+          Callstack <span class="tooltip" title="Trace function calls using __cyg_profile.">(?)</span>
+        </label>
+        <label><input type="checkbox" id="memoryCheckbox" onchange="generateTraceCommands()" />
+          Memory Allocation <span class="tooltip" title="Trace malloc/free.">(?)</span>
+        </label>
+        <label><input type="checkbox" id="dlCheckbox" onchange="generateTraceCommands()" />
+          Dynamic Linking <span class="tooltip" title="Trace dlopen/dlclose events.">(?)</span>
+        </label>
+        <label><input type="checkbox" id="forkCheckbox" onchange="generateTraceCommands()" />
+          Fork/Exec <span class="tooltip" title="Trace fork(), exec().">(?)</span>
+        </label>
+      </div>
+    </div>
 
-            if (kernelCheckbox.checked) {
-                commands += '\nlttng enable-event -a -k';
-            }
-            if (syscallCheckbox.checked) {
-                commands += ' --syscalls';
-            }
-            if (ustCheckbox.checked) {
-                commands += '\nlttng enable-event -a -u';
-            }
-            if (callstackCheckbox.checked) {
-                preloads.push('lib_lttngust_cyg_profile.so');
-            }
-            if (memoryCheckbox.checked) {
-                preloads.push('lib_lttngust_libc.so');
-            }
-            if (dlCheckbox.checked) {
-                preloads.push('lib_lttngust_dl.so');
-            }
-            if (forkCheckbox.checked) {
-                preloads.push('lib_lttngust_fork.so');
-            }
+    <div class="section">
+      <strong>Subbuffer Configuration</strong>
+      <span class="tooltip" title="Controls buffering behavior for events to reduce overhead.">(?)</span>
+      <div class="indent">
+        <label>
+          Subbuffer Count:
+          <input type="number" id="subbufCount" min="2" step="1" value="4" onchange="generateTraceCommands()" />
+          <span class="tooltip" title="Number of sub-buffers per channel.">(?)</span>
+        </label>
+        <label>
+          Subbuffer Size (bytes):
+          <input type="number" id="subbufSize" min="4096" step="4096" value="262144" onchange="generateTraceCommands()" />
+          <span class="tooltip" title="Size of each sub-buffer in bytes (must be power of 2).">(?)</span>
+        </label>
+      </div>
+    </div>
 
-            commands += '\nlttng start\n'
-            if (preloads.length != 0)
-                commands += 'LD_PRELOAD='+preloads.join(':')+' '
-            commands += './Your program\nlttng stop\nlttng destroy session';
+<div class="actions">
+  <button type="button" onclick="generateTraceCommands()">Generate</button>
+  <button type="reset" onclick="resetForm()">Reset</button>
+  <button type="button" onclick="downloadScript()">Download Script</button>
+  <button type="button" onclick="copyToClipboard()">Copy Script</button>
+  <span id="copyStatus" style="margin-left: 10px; color: green;"></span>
+</div>
+  </form>
 
-            document.getElementById('traceCommands').textContent = commands;
+  <pre id="traceCommands"></pre>
+
+  <script>
+    function toggleUstOptions() {
+      const ustChecked = document.getElementById('ustCheckbox').checked;
+      document.getElementById('ustOptions').style.display = ustChecked ? 'block' : 'none';
+      generateTraceCommands();
+    }
+
+    function resetForm() {
+      document.getElementById('traceCommands').textContent = '';
+      document.getElementById('ustOptions').style.display = 'none';
+    }
+
+    function generateTraceCommands() {
+      const sessionName = document.getElementById('sessionName').value || 'my_session';
+      const programPath = document.getElementById('programPath').value || './your_program';
+      const kernelCheckbox = document.getElementById('kernelCheckbox').checked;
+      const syscallCheckbox = document.getElementById('syscallCheckbox').checked;
+      const ustCheckbox = document.getElementById('ustCheckbox').checked;
+      const callstackCheckbox = document.getElementById('callstackCheckbox').checked;
+      const memoryCheckbox = document.getElementById('memoryCheckbox').checked;
+      const dlCheckbox = document.getElementById('dlCheckbox').checked;
+      const forkCheckbox = document.getElementById('forkCheckbox').checked;
+
+      const subbufCount = parseInt(document.getElementById('subbufCount').value, 10);
+      const subbufSize = parseInt(document.getElementById('subbufSize').value, 10);
+
+      let commands = `lttng create ${sessionName}`;
+
+      if (kernelCheckbox) {
+        commands += `\nlttng enable-channel chan0 -k --subbuf-size=${subbufSize} --num-subbuf=${subbufCount}`;
+        commands += `\nlttng enable-event -a -k -c chan0`;
+        if (syscallCheckbox) {
+          commands += ` --syscalls`;
         }
-    </script>
+      }
+
+      if (ustCheckbox) {
+        commands += `\nlttng enable-channel ust_chan0 -u --subbuf-size=${subbufSize} --num-subbuf=${subbufCount}`;
+        commands += `\nlttng enable-event -a -u -c ust_chan0`;
+      }
+
+      const preloads = [];
+      if (callstackCheckbox) preloads.push('lib_lttngust_cyg_profile.so');
+      if (memoryCheckbox) preloads.push('lib_lttngust_libc.so');
+      if (dlCheckbox) preloads.push('lib_lttngust_dl.so');
+      if (forkCheckbox) preloads.push('lib_lttngust_fork.so');
+
+      commands += `\nlttng start\n`;
+
+      if (preloads.length > 0) {
+        commands += `LD_PRELOAD=${preloads.join(':')} `;
+      }
+
+      commands += `${programPath}\nlttng stop\nlttng destroy ${sessionName}`;
+      document.getElementById('traceCommands').textContent = commands;
+    }
+    function copyToClipboard() {
+  const text = '#!/bin/bash\n\n' + document.getElementById('traceCommands').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const status = document.getElementById('copyStatus');
+    status.textContent = 'Copied!';
+    setTimeout(() => status.textContent = '', 2000);
+  }).catch(err => {
+    alert('Failed to copy: ' + err);
+  });
+}function downloadScript() {
+  const scriptContent = '#!/bin/bash\n\n' + document.getElementById('traceCommands').textContent;
+  const blob = new Blob([scriptContent], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'start_trace.sh';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+  </script>
 </body>
 
 </html>
