@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LTTng Tracing Configuration</title>
+    <style>
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>LTTng Tracing Configuration</h1>
+    <form id="lttngForm">
+        <label><input type="checkbox" id="kernelCheckbox" onchange="generateTraceCommands()"> Kernel</label>
+        <ul>
+            <li><label><input type="checkbox" id="syscallCheckbox" onchange="generateTraceCommands()"> Syscall</label>
+            </li>
+        </ul>
+
+        <label><input type="checkbox" id="ustCheckbox" onchange="generateTraceCommands()"> UST</label>
+        <ul><label>
+                <li><input type="checkbox" id="callstackCheckbox" onchange="generateTraceCommands()"> Callstack
+            </label></li>
+            <li>
+                <label><input type="checkbox" id="memoryCheckbox" onchange="generateTraceCommands()"> Memory</label>
+            </li>
+            <li>
+                <label><input type="checkbox" id="dlCheckbox" onchange="generateTraceCommands()"> DL</label>
+            </li>
+            <li>
+                <label><input type="checkbox" id="forkCheckbox" onchange="generateTraceCommands()"> Fork</label>
+            </li>
+        </ul>
+    </form>
+    <pre id="traceCommands"></pre>
+
+    <script>
+        function generateTraceCommands() {
+            const kernelCheckbox = document.getElementById('kernelCheckbox');
+            const syscallCheckbox = document.getElementById('syscallCheckbox');
+            const ustCheckbox = document.getElementById('ustCheckbox');
+            const callstackCheckbox = document.getElementById('callstackCheckbox');
+            const memoryCheckbox = document.getElementById('memoryCheckbox');
+            const dlCheckbox = document.getElementById('dlCheckbox');
+            const forkCheckbox = document.getElementById('forkCheckbox');
+
+            let commands = 'lttng create session';
+            let preloads = []
+
+            if (kernelCheckbox.checked) {
+                commands += '\nlttng enable-event -a -k';
+            }
+            if (syscallCheckbox.checked) {
+                commands += ' --syscalls';
+            }
+            if (ustCheckbox.checked) {
+                commands += '\nlttng enable-event -a -u';
+            }
+            if (callstackCheckbox.checked) {
+                preloads.push('lib_lttngust_cyg_profile.so');
+            }
+            if (memoryCheckbox.checked) {
+                preloads.push('lib_lttngust_libc.so');
+            }
+            if (dlCheckbox.checked) {
+                preloads.push('lib_lttngust_dl.so');
+            }
+            if (forkCheckbox.checked) {
+                preloads.push('lib_lttngust_fork.so');
+            }
+
+            commands += '\nlttng start\n'
+            if (preloads.length != 0)
+                commands += 'LD_PRELOAD='+preloads.join(':')+' '
+            commands += './Your program\nlttng stop\nlttng destroy session';
+
+            document.getElementById('traceCommands').textContent = commands;
+        }
+    </script>
+</body>
+
+</html>
+
