@@ -1,0 +1,357 @@
+---
+// LTTng Form Component
+---
+
+<form
+  id="lttngForm"
+  class="bg-white border border-gray-200 rounded-lg shadow-sm p-6"
+>
+  <!-- Basic Configuration Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="space-y-4">
+      <label class="block cursor-pointer">
+        <span class="block mb-2 font-medium text-gray-700">Session Name:</span>
+        <input
+          type="text"
+          id="sessionName"
+          placeholder="e.g. trace_debug"
+          oninput="generateTraceCommands()"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </label>
+
+      <label class="block cursor-pointer">
+        <span class="block mb-2 font-medium text-gray-700">Program to Run:</span
+        >
+        <input
+          type="text"
+          id="programPath"
+          placeholder="e.g. ./your_program"
+          oninput="generateTraceCommands()"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        <span
+          class="text-blue-600 cursor-help ml-2 text-sm"
+          title="This is the program that will be traced. Use the full path or relative command."
+          >(?)</span
+        >
+      </label>
+    </div>
+
+    <div class="space-y-4">
+      <label class="block mb-2 font-medium text-gray-700"
+        >Subbuffer Configuration:</label
+      >
+      <div class="grid grid-cols-2 gap-3">
+        <label class="block cursor-pointer">
+          <span class="block mb-1 text-sm text-gray-600">Count:</span>
+          <input
+            type="number"
+            id="subbufCount"
+            min="2"
+            step="1"
+            value="4"
+            onchange="generateTraceCommands()"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          />
+        </label>
+        <label class="block cursor-pointer">
+          <span class="block mb-1 text-sm text-gray-600">Size (bytes):</span>
+          <input
+            type="number"
+            id="subbufSize"
+            min="4096"
+            step="4096"
+            value="262144"
+            onchange="generateTraceCommands()"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          />
+        </label>
+      </div>
+      <span
+        class="text-blue-600 cursor-help text-sm"
+        title="Controls buffering behavior for events to reduce overhead."
+        >(?)</span
+      >
+    </div>
+  </div>
+
+  <!-- Tracing Options Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <!-- Kernel Tracing -->
+    <div class="space-y-3">
+      <label class="flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          id="kernelCheckbox"
+          onchange="generateTraceCommands()"
+          class="mr-2"
+        />
+        <span class="font-medium text-gray-700">Kernel Tracing</span>
+        <span
+          class="text-blue-600 cursor-help ml-2 text-sm"
+          title="Trace Linux kernel events like scheduling and interrupts."
+          >(?)</span
+        >
+      </label>
+      <div class="ml-6">
+        <label class="flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            id="syscallCheckbox"
+            onchange="generateTraceCommands()"
+            class="mr-2"
+          />
+          <span class="text-gray-700 text-sm">Trace Syscalls</span>
+          <span
+            class="text-blue-600 cursor-help ml-2 text-sm"
+            title="Capture system call events like open(), read(), write()."
+            >(?)</span
+          >
+        </label>
+      </div>
+    </div>
+
+    <!-- User-Space Tracing -->
+    <div class="space-y-3">
+      <label class="flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          id="ustCheckbox"
+          onchange="toggleUstOptions()"
+          class="mr-2"
+        />
+        <span class="font-medium text-gray-700">UST (User-Space)</span>
+        <span
+          class="text-blue-600 cursor-help ml-2 text-sm"
+          title="Trace events emitted from user-space applications.">(?)</span
+        >
+      </label>
+      <div class="ml-6 hidden" id="ustOptions">
+        <div class="grid grid-cols-2 gap-2">
+          <label class="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="callstackCheckbox"
+              onchange="generateTraceCommands()"
+              class="mr-2"
+            />
+            <span class="text-gray-700 text-sm">Callstack</span>
+          </label>
+          <label class="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="memoryCheckbox"
+              onchange="generateTraceCommands()"
+              class="mr-2"
+            />
+            <span class="text-gray-700 text-sm">Memory</span>
+          </label>
+          <label class="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="dlCheckbox"
+              onchange="generateTraceCommands()"
+              class="mr-2"
+            />
+            <span class="text-gray-700 text-sm">Dynamic Linking</span>
+          </label>
+          <label class="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="forkCheckbox"
+              onchange="generateTraceCommands()"
+              class="mr-2"
+            />
+            <span class="text-gray-700 text-sm">Fork/Exec</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Advanced Tracing Features (Collapsible) -->
+  <div class="border-t pt-6">
+    <button
+      type="button"
+      onclick="toggleAdvancedFeatures()"
+      class="flex items-center justify-between w-full text-left mb-4 group"
+    >
+      <h3
+        class="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors"
+      >
+        Advanced Tracing Features
+      </h3>
+      <svg
+        id="advancedArrow"
+        class="w-5 h-5 text-gray-500 transform transition-transform"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 9l-7 7-7-7"></path>
+      </svg>
+    </button>
+
+    <div id="advancedFeatures" class="hidden space-y-6">
+      <!-- Event Filtering -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-2 font-medium text-gray-700 text-sm"
+            >Event Filtering:</label
+          >
+          <div class="space-y-2">
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="filterPidCheckbox"
+                onchange="generateTraceCommands()"
+                class="mr-2"
+              />
+              <span class="text-gray-700 text-sm">Filter by PID</span>
+              <input
+                type="number"
+                id="filterPid"
+                placeholder="1234"
+                oninput="generateTraceCommands()"
+                class="ml-2 w-16 px-2 py-1 border border-gray-300 rounded text-xs"
+              />
+            </label>
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="filterEventCheckbox"
+                onchange="generateTraceCommands()"
+                class="mr-2"
+              />
+              <span class="text-gray-700 text-sm">Filter by Event</span>
+              <input
+                type="text"
+                id="filterEvent"
+                placeholder="sched_switch"
+                oninput="generateTraceCommands()"
+                class="ml-2 w-24 px-2 py-1 border border-gray-300 rounded text-xs"
+              />
+            </label>
+          </div>
+        </div>
+
+        <!-- Context Information -->
+        <div>
+          <label class="block mb-2 font-medium text-gray-700 text-sm"
+            >Context Information:</label
+          >
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="contextCpuCheckbox"
+                onchange="generateTraceCommands()"
+                class="mr-2"
+              />
+              <span class="text-gray-700 text-sm">CPU ID</span>
+            </label>
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="contextTidCheckbox"
+                onchange="generateTraceCommands()"
+                class="mr-2"
+              />
+              <span class="text-gray-700 text-sm">Thread ID</span>
+            </label>
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="contextTimestampCheckbox"
+                onchange="generateTraceCommands()"
+                class="mr-2"
+              />
+              <span class="text-gray-700 text-sm">Timestamp</span>
+            </label>
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="contextProcnameCheckbox"
+                onchange="generateTraceCommands()"
+                class="mr-2"
+              />
+              <span class="text-gray-700 text-sm">Process Name</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Events and Performance Counters -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Custom Event Points -->
+        <div>
+          <label class="block mb-2 font-medium text-gray-700 text-sm"
+            >Custom Event Points:</label
+          >
+          <textarea
+            id="customEvents"
+            placeholder="my_provider:my_event
+another_provider:another_event"
+            oninput="generateTraceCommands()"
+            class="w-full h-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs"
+          ></textarea>
+        </div>
+
+        <!-- Performance Counters -->
+        <div>
+          <label class="flex items-center mb-2 cursor-pointer">
+            <input
+              type="checkbox"
+              id="perfCountersCheckbox"
+              onchange="generateTraceCommands()"
+              class="mr-2"
+            />
+            <span class="font-medium text-gray-700 text-sm"
+              >Performance Counters</span
+            >
+            <span
+              class="text-blue-600 cursor-help ml-2 text-sm"
+              title="Enable hardware performance counter events">(?)</span
+            >
+          </label>
+          <div class="ml-6 hidden" id="perfCountersOptions">
+            <div class="grid grid-cols-1 gap-1">
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="perfCpuCyclesCheckbox"
+                  onchange="generateTraceCommands()"
+                  class="mr-2"
+                />
+                <span class="text-gray-700 text-sm">CPU Cycles</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="perfCacheMissesCheckbox"
+                  onchange="generateTraceCommands()"
+                  class="mr-2"
+                />
+                <span class="text-gray-700 text-sm">Cache Misses</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="perfBranchMissesCheckbox"
+                  onchange="generateTraceCommands()"
+                  class="mr-2"
+                />
+                <span class="text-gray-700 text-sm">Branch Misses</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

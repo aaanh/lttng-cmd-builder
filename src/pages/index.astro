@@ -1,0 +1,33 @@
+---
+import Layout from "../layouts/layout.astro";
+import LttngForm from "../components/lttng-form.astro";
+import ScriptActions from "../components/script-actions.astro";
+import TraceCommands from "../components/trace-commands.astro";
+import "../styles/global.css";
+
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+---
+
+<Layout title="LTTng Tracing Configurator">
+  <div class="min-h-screen bg-gray-50 py-6 px-4">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-3xl font-bold text-blue-600 mb-6">
+        LTTng Tracing Configurator
+      </h1>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Left Column: Configuration -->
+        <div class="space-y-6">
+          <LttngForm />
+          <ScriptActions />
+        </div>
+
+        <!-- Right Column: Command Output -->
+        <div class="lg:sticky lg:top-6">
+          <TraceCommands />
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

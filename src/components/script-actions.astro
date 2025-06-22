@@ -1,0 +1,77 @@
+---
+// Script Actions Component
+---
+
+<div class="mt-6 flex flex-wrap gap-3">
+  <button
+    type="button"
+    onclick="generateTraceCommands()"
+    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+  >
+    Generate
+  </button>
+  <button
+    type="reset"
+    onclick="resetForm()"
+    class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+  >
+    Reset
+  </button>
+  <button
+    type="button"
+    onclick="downloadScript()"
+    class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+  >
+    Download Script
+  </button>
+  <button
+    type="button"
+    onclick="copyToClipboard()"
+    class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors"
+  >
+    Copy Script
+  </button>
+  <button
+    type="button"
+    onclick="generateShareUrl()"
+    class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
+  >
+    Share URL
+  </button>
+  <span id="copyStatus" class="ml-3 text-green-600 font-medium"></span>
+</div>
+
+<!-- Share URL Modal -->
+<div
+  id="shareModal"
+  class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center"
+>
+  <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold mb-4">Share Configuration</h3>
+    <p class="text-gray-600 mb-4">
+      Copy this URL to share your LTTng configuration:
+    </p>
+    <div class="flex">
+      <input
+        type="text"
+        id="shareUrl"
+        readonly
+        class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button
+        onclick="copyShareUrl()"
+        class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Copy
+      </button>
+    </div>
+    <div class="mt-4 flex justify-end">
+      <button
+        onclick="closeShareModal()"
+        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>

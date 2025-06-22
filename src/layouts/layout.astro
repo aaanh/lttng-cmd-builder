@@ -1,0 +1,434 @@
+---
+export interface Props {
+  title?: string;
+}
+
+const { title = "lttng cmd builder" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<script>
+  declare global {
+    interface Window {
+      toggleUstOptions: () => void;
+      resetForm: () => void;
+      generateTraceCommands: () => void;
+      copyToClipboard: () => void;
+      downloadScript: () => void;
+      generateShareUrl: () => void;
+      copyShareUrl: () => void;
+      closeShareModal: () => void;
+      loadFromUrl: () => void;
+      clearCommands: () => void;
+      copyCommandsDirect: () => void;
+      updateCommandCount: () => void;
+      updateEmptyState: () => void;
+      toggleAdvancedFeatures: () => void;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // Load configuration from URL if present
+    window.loadFromUrl = function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const config = urlParams.get("config");
+      if (config) {
+        try {
+          const decoded: Record<string, any> = JSON.parse(atob(config));
+          Object.keys(decoded).forEach((key) => {
+            const element = document.getElementById(key) as HTMLInputElement;
+            if (element) {
+              if (element.type === "checkbox") {
+                element.checked = decoded[key];
+              } else {
+                element.value = decoded[key];
+              }
+            }
+          });
+          window.generateTraceCommands();
+        } catch (e) {
+          console.error("Failed to load configuration from URL:", e);
+        }
+      }
+    };
+
+    window.toggleAdvancedFeatures = function () {
+      const advancedFeatures = document.getElementById("advancedFeatures");
+      const advancedArrow = document.getElementById("advancedArrow");
+
+      if (advancedFeatures && advancedArrow) {
+        const isHidden = advancedFeatures.classList.contains("hidden");
+        advancedFeatures.classList.toggle("hidden", !isHidden);
+        advancedArrow.style.transform = isHidden
+          ? "rotate(180deg)"
+          : "rotate(0deg)";
+      }
+    };
+
+    window.toggleUstOptions = function () {
+      const ustChecked = (
+        document.getElementById("ustCheckbox") as HTMLInputElement
+      )?.checked;
+      const ustOptions = document.getElementById("ustOptions");
+      if (ustOptions) {
+        ustOptions.classList.toggle("hidden", !ustChecked);
+      }
+      window.generateTraceCommands();
+    };
+
+    window.resetForm = function () {
+      const traceCommands = document.getElementById("traceCommands");
+      const ustOptions = document.getElementById("ustOptions");
+      const perfCountersOptions = document.getElementById(
+        "perfCountersOptions"
+      );
+      if (traceCommands) {
+        traceCommands.textContent = "";
+      }
+      if (ustOptions) {
+        ustOptions.classList.add("hidden");
+      }
+      if (perfCountersOptions) {
+        perfCountersOptions.classList.add("hidden");
+      }
+      window.updateCommandCount();
+      window.updateEmptyState();
+    };
+
+    window.clearCommands = function () {
+      const traceCommands = document.getElementById("traceCommands");
+      if (traceCommands) {
+        traceCommands.textContent = "";
+      }
+      window.updateCommandCount();
+      window.updateEmptyState();
+    };
+
+    window.copyCommandsDirect = function () {
+      const traceCommands = document.getElementById("traceCommands");
+      if (!traceCommands || !traceCommands.textContent) return;
+
+      navigator.clipboard
+        .writeText(traceCommands.textContent)
+        .then(() => {
+          const status = document.getElementById("copyStatus");
+          if (status) {
+            status.textContent = "Commands Copied!";
+            setTimeout(() => (status.textContent = ""), 2000);
+          }
+        })
+        .catch((err) => {
+          alert("Failed to copy commands: " + err);
+        });
+    };
+
+    window.updateCommandCount = function () {
+      const traceCommands = document.getElementById("traceCommands");
+      const commandCount = document.getElementById("commandCount");
+      if (traceCommands && commandCount) {
+        const lines = traceCommands.textContent
+          ? traceCommands.textContent.split("\n").length
+          : 0;
+        commandCount.textContent = `${lines} line${lines !== 1 ? "s" : ""}`;
+      }
+    };
+
+    window.updateEmptyState = function () {
+      const traceCommands = document.getElementById("traceCommands");
+      const emptyState = document.getElementById("emptyState");
+      if (traceCommands && emptyState) {
+        const hasContent =
+          traceCommands.textContent &&
+          traceCommands.textContent.trim().length > 0;
+        emptyState.style.display = hasContent ? "none" : "flex";
+      }
+    };
+
+    window.generateTraceCommands = function () {
+      const sessionName =
+        (document.getElementById("sessionName") as HTMLInputElement)?.value ||
+        "my_session";
+      const programPath =
+        (document.getElementById("programPath") as HTMLInputElement)?.value ||
+        "./your_program";
+      const kernelCheckbox = (
+        document.getElementById("kernelCheckbox") as HTMLInputElement
+      )?.checked;
+      const syscallCheckbox = (
+        document.getElementById("syscallCheckbox") as HTMLInputElement
+      )?.checked;
+      const ustCheckbox = (
+        document.getElementById("ustCheckbox") as HTMLInputElement
+      )?.checked;
+      const callstackCheckbox = (
+        document.getElementById("callstackCheckbox") as HTMLInputElement
+      )?.checked;
+      const memoryCheckbox = (
+        document.getElementById("memoryCheckbox") as HTMLInputElement
+      )?.checked;
+      const dlCheckbox = (
+        document.getElementById("dlCheckbox") as HTMLInputElement
+      )?.checked;
+      const forkCheckbox = (
+        document.getElementById("forkCheckbox") as HTMLInputElement
+      )?.checked;
+
+      // Advanced features
+      const filterPidCheckbox = (
+        document.getElementById("filterPidCheckbox") as HTMLInputElement
+      )?.checked;
+      const filterPid = (
+        document.getElementById("filterPid") as HTMLInputElement
+      )?.value;
+      const filterEventCheckbox = (
+        document.getElementById("filterEventCheckbox") as HTMLInputElement
+      )?.checked;
+      const filterEvent = (
+        document.getElementById("filterEvent") as HTMLInputElement
+      )?.value;
+      const contextCpuCheckbox = (
+        document.getElementById("contextCpuCheckbox") as HTMLInputElement
+      )?.checked;
+      const contextTidCheckbox = (
+        document.getElementById("contextTidCheckbox") as HTMLInputElement
+      )?.checked;
+      const contextTimestampCheckbox = (
+        document.getElementById("contextTimestampCheckbox") as HTMLInputElement
+      )?.checked;
+      const contextProcnameCheckbox = (
+        document.getElementById("contextProcnameCheckbox") as HTMLInputElement
+      )?.checked;
+      const customEvents = (
+        document.getElementById("customEvents") as HTMLTextAreaElement
+      )?.value;
+      const perfCountersCheckbox = (
+        document.getElementById("perfCountersCheckbox") as HTMLInputElement
+      )?.checked;
+      const perfCpuCyclesCheckbox = (
+        document.getElementById("perfCpuCyclesCheckbox") as HTMLInputElement
+      )?.checked;
+      const perfCacheMissesCheckbox = (
+        document.getElementById("perfCacheMissesCheckbox") as HTMLInputElement
+      )?.checked;
+      const perfBranchMissesCheckbox = (
+        document.getElementById("perfBranchMissesCheckbox") as HTMLInputElement
+      )?.checked;
+
+      const subbufCount = parseInt(
+        (document.getElementById("subbufCount") as HTMLInputElement)?.value ||
+          "4",
+        10
+      );
+      const subbufSize = parseInt(
+        (document.getElementById("subbufSize") as HTMLInputElement)?.value ||
+          "262144",
+        10
+      );
+
+      let commands = `lttng create ${sessionName}`;
+
+      if (kernelCheckbox) {
+        commands += `\nlttng enable-channel chan0 -k --subbuf-size=${subbufSize} --num-subbuf=${subbufCount}`;
+        commands += `\nlttng enable-event -a -k -c chan0`;
+        if (syscallCheckbox) {
+          commands += ` --syscalls`;
+        }
+
+        // Add context information
+        const contexts = [];
+        if (contextCpuCheckbox) contexts.push("cpu_id");
+        if (contextTidCheckbox) contexts.push("tid");
+        if (contextTimestampCheckbox) contexts.push("timestamp");
+        if (contextProcnameCheckbox) contexts.push("procname");
+
+        if (contexts.length > 0) {
+          commands += `\nlttng add-context -k -c chan0 -t ${contexts.join(",")}`;
+        }
+      }
+
+      if (ustCheckbox) {
+        commands += `\nlttng enable-channel ust_chan0 -u --subbuf-size=${subbufSize} --num-subbuf=${subbufCount}`;
+        commands += `\nlttng enable-event -a -u -c ust_chan0`;
+
+        // Add context information for UST
+        const contexts = [];
+        if (contextCpuCheckbox) contexts.push("cpu_id");
+        if (contextTidCheckbox) contexts.push("tid");
+        if (contextTimestampCheckbox) contexts.push("timestamp");
+        if (contextProcnameCheckbox) contexts.push("procname");
+
+        if (contexts.length > 0) {
+          commands += `\nlttng add-context -u -c ust_chan0 -t ${contexts.join(",")}`;
+        }
+      }
+
+      // Add custom events
+      if (customEvents && customEvents.trim()) {
+        const events = customEvents.split("\n").filter((e) => e.trim());
+        events.forEach((event) => {
+          if (event.includes(":")) {
+            commands += `\nlttng enable-event ${event.trim()} -k -c chan0`;
+          }
+        });
+      }
+
+      // Add performance counters
+      if (perfCountersCheckbox) {
+        const perfEvents = [];
+        if (perfCpuCyclesCheckbox) perfEvents.push("cpu-cycles");
+        if (perfCacheMissesCheckbox) perfEvents.push("cache-misses");
+        if (perfBranchMissesCheckbox) perfEvents.push("branch-misses");
+
+        if (perfEvents.length > 0) {
+          commands += `\nlttng enable-event -k -c chan0 ${perfEvents.join(",")}`;
+        }
+      }
+
+      const preloads = [];
+      if (callstackCheckbox) preloads.push("lib_lttngust_cyg_profile.so");
+      if (memoryCheckbox) preloads.push("lib_lttngust_libc.so");
+      if (dlCheckbox) preloads.push("lib_lttngust_dl.so");
+      if (forkCheckbox) preloads.push("lib_lttngust_fork.so");
+
+      commands += `\nlttng start\n`;
+
+      if (preloads.length > 0) {
+        commands += `LD_PRELOAD=${preloads.join(":")} `;
+      }
+
+      commands += `${programPath}\nlttng stop\nlttng destroy ${sessionName}`;
+
+      const traceCommands = document.getElementById("traceCommands");
+      if (traceCommands) {
+        traceCommands.textContent = commands;
+      }
+
+      window.updateCommandCount();
+      window.updateEmptyState();
+    };
+
+    window.copyToClipboard = function () {
+      const traceCommands = document.getElementById("traceCommands");
+      if (!traceCommands) return;
+
+      const text = "#!/bin/bash\n\n" + traceCommands.textContent;
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          const status = document.getElementById("copyStatus");
+          if (status) {
+            status.textContent = "Copied!";
+            setTimeout(() => (status.textContent = ""), 2000);
+          }
+        })
+        .catch((err) => {
+          alert("Failed to copy: " + err);
+        });
+    };
+
+    window.downloadScript = function () {
+      const traceCommands = document.getElementById("traceCommands");
+      if (!traceCommands) return;
+
+      const scriptContent = "#!/bin/bash\n\n" + traceCommands.textContent;
+      const blob = new Blob([scriptContent], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "start_trace.sh";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    window.generateShareUrl = function () {
+      const config: Record<string, any> = {};
+      const inputs = document.querySelectorAll("input, textarea");
+      inputs.forEach((input) => {
+        const element = input as HTMLInputElement;
+        if (element.id) {
+          if (element.type === "checkbox") {
+            config[element.id] = element.checked;
+          } else {
+            config[element.id] = element.value;
+          }
+        }
+      });
+
+      const encoded = btoa(JSON.stringify(config));
+      const shareUrl = `${window.location.origin}${window.location.pathname}?config=${encoded}`;
+
+      const shareUrlInput = document.getElementById(
+        "shareUrl"
+      ) as HTMLInputElement;
+      if (shareUrlInput) {
+        shareUrlInput.value = shareUrl;
+      }
+
+      const modal = document.getElementById("shareModal");
+      if (modal) {
+        modal.classList.remove("hidden");
+      }
+    };
+
+    window.copyShareUrl = function () {
+      const shareUrlInput = document.getElementById(
+        "shareUrl"
+      ) as HTMLInputElement;
+      if (shareUrlInput) {
+        shareUrlInput.select();
+        navigator.clipboard.writeText(shareUrlInput.value).then(() => {
+          const status = document.getElementById("copyStatus");
+          if (status) {
+            status.textContent = "URL Copied!";
+            setTimeout(() => (status.textContent = ""), 2000);
+          }
+        });
+      }
+    };
+
+    window.closeShareModal = function () {
+      const modal = document.getElementById("shareModal");
+      if (modal) {
+        modal.classList.add("hidden");
+      }
+    };
+
+    // Initialize
+    window.loadFromUrl();
+    window.updateCommandCount();
+    window.updateEmptyState();
+
+    // Add event listener for performance counters toggle
+    const perfCountersCheckbox = document.getElementById(
+      "perfCountersCheckbox"
+    ) as HTMLInputElement;
+    if (perfCountersCheckbox) {
+      perfCountersCheckbox.addEventListener("change", function () {
+        const perfCountersOptions = document.getElementById(
+          "perfCountersOptions"
+        );
+        if (perfCountersOptions) {
+          perfCountersOptions.classList.toggle("hidden", !this.checked);
+        }
+        window.generateTraceCommands();
+      });
+    }
+  });
+</script>
+
+<style></style>
