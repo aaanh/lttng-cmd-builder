@@ -239,11 +239,21 @@ const { title = "lttng cmd builder" } = Astro.props;
 
       let commands = `lttng create ${sessionName}`;
 
+      // Add filtering if specified
+      if (filterPidCheckbox && filterPid) {
+        commands += `\nlttng track -p ${filterPid}`;
+      }
+
       if (kernelCheckbox) {
         commands += `\nlttng enable-channel chan0 -k --subbuf-size=${subbufSize} --num-subbuf=${subbufCount}`;
-        commands += `\nlttng enable-event -a -k -c chan0`;
-        if (syscallCheckbox) {
-          commands += ` --syscalls`;
+
+        if (filterEventCheckbox && filterEvent) {
+          commands += `\nlttng enable-event ${filterEvent} -k -c chan0`;
+        } else {
+          commands += `\nlttng enable-event -a -k -c chan0`;
+          if (syscallCheckbox) {
+            commands += ` --syscalls`;
+          }
         }
 
         // Add context information
@@ -260,7 +270,12 @@ const { title = "lttng cmd builder" } = Astro.props;
 
       if (ustCheckbox) {
         commands += `\nlttng enable-channel ust_chan0 -u --subbuf-size=${subbufSize} --num-subbuf=${subbufCount}`;
-        commands += `\nlttng enable-event -a -u -c ust_chan0`;
+
+        if (filterEventCheckbox && filterEvent) {
+          commands += `\nlttng enable-event ${filterEvent} -u -c ust_chan0`;
+        } else {
+          commands += `\nlttng enable-event -a -u -c ust_chan0`;
+        }
 
         // Add context information for UST
         const contexts = [];

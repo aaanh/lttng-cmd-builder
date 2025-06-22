@@ -6,49 +6,51 @@
   <button
     type="button"
     onclick="generateTraceCommands()"
-    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+    class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm"
   >
     Generate
   </button>
   <button
     type="reset"
     onclick="resetForm()"
-    class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+    class="px-6 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm"
   >
     Reset
   </button>
   <button
     type="button"
     onclick="downloadScript()"
-    class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+    class="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm"
   >
     Download Script
   </button>
   <button
     type="button"
     onclick="copyToClipboard()"
-    class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors"
+    class="px-6 py-3 bg-violet-600 text-white rounded-lg hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm"
   >
     Copy Script
   </button>
   <button
     type="button"
     onclick="generateShareUrl()"
-    class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
+    class="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm"
   >
     Share URL
   </button>
-  <span id="copyStatus" class="ml-3 text-green-600 font-medium"></span>
+  <span id="copyStatus" class="ml-3 text-emerald-600 font-semibold"></span>
 </div>
 
 <!-- Share URL Modal -->
 <div
   id="shareModal"
-  class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center"
+  class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden z-50 flex items-center justify-center backdrop-blur-sm"
 >
-  <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-    <h3 class="text-lg font-semibold mb-4">Share Configuration</h3>
-    <p class="text-gray-600 mb-4">
+  <div
+    class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl border border-slate-200"
+  >
+    <h3 class="text-lg font-bold text-slate-800 mb-4">Share Configuration</h3>
+    <p class="text-slate-600 mb-4">
       Copy this URL to share your LTTng configuration:
     </p>
     <div class="flex">
@@ -56,11 +58,11 @@
         type="text"
         id="shareUrl"
         readonly
-        class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="flex-1 px-4 py-3 border border-slate-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50"
       />
       <button
         onclick="copyShareUrl()"
-        class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="px-4 py-3 bg-indigo-600 text-white rounded-r-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors font-medium"
       >
         Copy
       </button>
@@ -68,7 +70,7 @@
     <div class="mt-4 flex justify-end">
       <button
         onclick="closeShareModal()"
-        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500 transition-colors font-medium"
       >
         Close
       </button>

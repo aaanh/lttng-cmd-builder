@@ -4,34 +4,37 @@
 
 <form
   id="lttngForm"
-  class="bg-white border border-gray-200 rounded-lg shadow-sm p-6"
+  class="bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200 rounded-xl shadow-lg p-8"
 >
   <!-- Basic Configuration Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
     <div class="space-y-4">
       <label class="block cursor-pointer">
-        <span class="block mb-2 font-medium text-gray-700">Session Name:</span>
+        <span class="block mb-2 font-semibold text-slate-800"
+          >Session Name:</span
+        >
         <input
           type="text"
           id="sessionName"
           placeholder="e.g. trace_debug"
           oninput="generateTraceCommands()"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm transition-all duration-200"
         />
       </label>
 
       <label class="block cursor-pointer">
-        <span class="block mb-2 font-medium text-gray-700">Program to Run:</span
+        <span class="block mb-2 font-semibold text-slate-800"
+          >Program to Run:</span
         >
         <input
           type="text"
           id="programPath"
           placeholder="e.g. ./your_program"
           oninput="generateTraceCommands()"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm transition-all duration-200"
         />
         <span
-          class="text-blue-600 cursor-help ml-2 text-sm"
+          class="text-indigo-600 cursor-help ml-2 text-sm font-medium"
           title="This is the program that will be traced. Use the full path or relative command."
           >(?)</span
         >
@@ -39,12 +42,14 @@
     </div>
 
     <div class="space-y-4">
-      <label class="block mb-2 font-medium text-gray-700"
+      <label class="block mb-2 font-semibold text-slate-800"
         >Subbuffer Configuration:</label
       >
       <div class="grid grid-cols-2 gap-3">
         <label class="block cursor-pointer">
-          <span class="block mb-1 text-sm text-gray-600">Count:</span>
+          <span class="block mb-1 text-sm font-medium text-slate-600"
+            >Count:</span
+          >
           <input
             type="number"
             id="subbufCount"
@@ -52,11 +57,13 @@
             step="1"
             value="4"
             onchange="generateTraceCommands()"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white shadow-sm transition-all duration-200"
           />
         </label>
         <label class="block cursor-pointer">
-          <span class="block mb-1 text-sm text-gray-600">Size (bytes):</span>
+          <span class="block mb-1 text-sm font-medium text-slate-600"
+            >Size (bytes):</span
+          >
           <input
             type="number"
             id="subbufSize"
@@ -64,12 +71,12 @@
             step="4096"
             value="262144"
             onchange="generateTraceCommands()"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white shadow-sm transition-all duration-200"
           />
         </label>
       </div>
       <span
-        class="text-blue-600 cursor-help text-sm"
+        class="text-indigo-600 cursor-help text-sm font-medium"
         title="Controls buffering behavior for events to reduce overhead."
         >(?)</span
       >
@@ -79,32 +86,34 @@
   <!-- Tracing Options Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
     <!-- Kernel Tracing -->
-    <div class="space-y-3">
+    <div
+      class="space-y-3 bg-white p-4 rounded-lg border border-slate-200 shadow-sm"
+    >
       <label class="flex items-center cursor-pointer">
         <input
           type="checkbox"
           id="kernelCheckbox"
           onchange="generateTraceCommands()"
-          class="mr-2"
+          class="mr-3 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
         />
-        <span class="font-medium text-gray-700">Kernel Tracing</span>
+        <span class="font-semibold text-slate-800">Kernel Tracing</span>
         <span
-          class="text-blue-600 cursor-help ml-2 text-sm"
+          class="text-indigo-600 cursor-help ml-2 text-sm font-medium"
           title="Trace Linux kernel events like scheduling and interrupts."
           >(?)</span
         >
       </label>
-      <div class="ml-6">
+      <div class="ml-7">
         <label class="flex items-center cursor-pointer">
           <input
             type="checkbox"
             id="syscallCheckbox"
             onchange="generateTraceCommands()"
-            class="mr-2"
+            class="mr-3 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
           />
-          <span class="text-gray-700 text-sm">Trace Syscalls</span>
+          <span class="text-slate-700 text-sm font-medium">Trace Syscalls</span>
           <span
-            class="text-blue-600 cursor-help ml-2 text-sm"
+            class="text-indigo-600 cursor-help ml-2 text-sm font-medium"
             title="Capture system call events like open(), read(), write()."
             >(?)</span
           >
@@ -113,57 +122,61 @@
     </div>
 
     <!-- User-Space Tracing -->
-    <div class="space-y-3">
+    <div
+      class="space-y-3 bg-white p-4 rounded-lg border border-slate-200 shadow-sm"
+    >
       <label class="flex items-center cursor-pointer">
         <input
           type="checkbox"
           id="ustCheckbox"
           onchange="toggleUstOptions()"
-          class="mr-2"
+          class="mr-3 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
         />
-        <span class="font-medium text-gray-700">UST (User-Space)</span>
+        <span class="font-semibold text-slate-800">UST (User-Space)</span>
         <span
-          class="text-blue-600 cursor-help ml-2 text-sm"
+          class="text-indigo-600 cursor-help ml-2 text-sm font-medium"
           title="Trace events emitted from user-space applications.">(?)</span
         >
       </label>
-      <div class="ml-6 hidden" id="ustOptions">
+      <div class="ml-7 hidden" id="ustOptions">
         <div class="grid grid-cols-2 gap-2">
           <label class="flex items-center cursor-pointer">
             <input
               type="checkbox"
               id="callstackCheckbox"
               onchange="generateTraceCommands()"
-              class="mr-2"
+              class="mr-2 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
             />
-            <span class="text-gray-700 text-sm">Callstack</span>
+            <span class="text-slate-700 text-sm font-medium">Callstack</span>
           </label>
           <label class="flex items-center cursor-pointer">
             <input
               type="checkbox"
               id="memoryCheckbox"
               onchange="generateTraceCommands()"
-              class="mr-2"
+              class="mr-2 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
             />
-            <span class="text-gray-700 text-sm">Memory</span>
+            <span class="text-slate-700 text-sm font-medium">Memory</span>
           </label>
           <label class="flex items-center cursor-pointer">
             <input
               type="checkbox"
               id="dlCheckbox"
               onchange="generateTraceCommands()"
-              class="mr-2"
+              class="mr-2 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
             />
-            <span class="text-gray-700 text-sm">Dynamic Linking</span>
+            <span class="text-slate-700 text-sm font-medium"
+              >Dynamic Linking</span
+            >
           </label>
           <label class="flex items-center cursor-pointer">
             <input
               type="checkbox"
               id="forkCheckbox"
               onchange="generateTraceCommands()"
-              class="mr-2"
+              class="mr-2 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
             />
-            <span class="text-gray-700 text-sm">Fork/Exec</span>
+            <span class="text-slate-700 text-sm font-medium">Fork/Exec</span>
           </label>
         </div>
       </div>
@@ -171,20 +184,20 @@
   </div>
 
   <!-- Advanced Tracing Features (Collapsible) -->
-  <div class="border-t pt-6">
+  <div class="border-t border-slate-200 pt-6">
     <button
       type="button"
       onclick="toggleAdvancedFeatures()"
       class="flex items-center justify-between w-full text-left mb-4 group"
     >
       <h3
-        class="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors"
+        class="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition-colors"
       >
         Advanced Tracing Features
       </h3>
       <svg
         id="advancedArrow"
-        class="w-5 h-5 text-gray-500 transform transition-transform"
+        class="w-5 h-5 text-slate-500 transform transition-transform"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -200,25 +213,27 @@
     <div id="advancedFeatures" class="hidden space-y-6">
       <!-- Event Filtering -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block mb-2 font-medium text-gray-700 text-sm"
+        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+          <label class="block mb-3 font-semibold text-slate-800 text-sm"
             >Event Filtering:</label
           >
-          <div class="space-y-2">
+          <div class="space-y-3">
             <label class="flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 id="filterPidCheckbox"
                 onchange="generateTraceCommands()"
-                class="mr-2"
+                class="mr-3 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
               />
-              <span class="text-gray-700 text-sm">Filter by PID</span>
+              <span class="text-slate-700 text-sm font-medium"
+                >Filter by PID</span
+              >
               <input
                 type="number"
                 id="filterPid"
                 placeholder="1234"
                 oninput="generateTraceCommands()"
-                class="ml-2 w-16 px-2 py-1 border border-gray-300 rounded text-xs"
+                class="ml-2 w-20 px-2 py-1 border border-slate-300 rounded text-xs bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </label>
             <label class="flex items-center cursor-pointer">
@@ -226,23 +241,25 @@
                 type="checkbox"
                 id="filterEventCheckbox"
                 onchange="generateTraceCommands()"
-                class="mr-2"
+                class="mr-3 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
               />
-              <span class="text-gray-700 text-sm">Filter by Event</span>
+              <span class="text-slate-700 text-sm font-medium"
+                >Filter by Event</span
+              >
               <input
                 type="text"
                 id="filterEvent"
                 placeholder="sched_switch"
                 oninput="generateTraceCommands()"
-                class="ml-2 w-24 px-2 py-1 border border-gray-300 rounded text-xs"
+                class="ml-2 w-28 px-2 py-1 border border-slate-300 rounded text-xs bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </label>
           </div>
         </div>
 
         <!-- Context Information -->
-        <div>
-          <label class="block mb-2 font-medium text-gray-700 text-sm"
+        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+          <label class="block mb-3 font-semibold text-slate-800 text-sm"
             >Context Information:</label
           >
           <div class="grid grid-cols-2 gap-2">
@@ -251,36 +268,38 @@
                 type="checkbox"
                 id="contextCpuCheckbox"
                 onchange="generateTraceCommands()"
-                class="mr-2"
+                class="mr-2 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
               />
-              <span class="text-gray-700 text-sm">CPU ID</span>
+              <span class="text-slate-700 text-sm font-medium">CPU ID</span>
             </label>
             <label class="flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 id="contextTidCheckbox"
                 onchange="generateTraceCommands()"
-                class="mr-2"
+                class="mr-2 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
               />
-              <span class="text-gray-700 text-sm">Thread ID</span>
+              <span class="text-slate-700 text-sm font-medium">Thread ID</span>
             </label>
             <label class="flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 id="contextTimestampCheckbox"
                 onchange="generateTraceCommands()"
-                class="mr-2"
+                class="mr-2 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
               />
-              <span class="text-gray-700 text-sm">Timestamp</span>
+              <span class="text-slate-700 text-sm font-medium">Timestamp</span>
             </label>
             <label class="flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 id="contextProcnameCheckbox"
                 onchange="generateTraceCommands()"
-                class="mr-2"
+                class="mr-2 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
               />
-              <span class="text-gray-700 text-sm">Process Name</span>
+              <span class="text-slate-700 text-sm font-medium"
+                >Process Name</span
+              >
             </label>
           </div>
         </div>
@@ -289,8 +308,8 @@
       <!-- Custom Events and Performance Counters -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Custom Event Points -->
-        <div>
-          <label class="block mb-2 font-medium text-gray-700 text-sm"
+        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+          <label class="block mb-3 font-semibold text-slate-800 text-sm"
             >Custom Event Points:</label
           >
           <textarea
@@ -298,55 +317,61 @@
             placeholder="my_provider:my_event
 another_provider:another_event"
             oninput="generateTraceCommands()"
-            class="w-full h-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs"
+            class="w-full h-20 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-xs bg-white shadow-sm transition-all duration-200"
           ></textarea>
         </div>
 
         <!-- Performance Counters -->
-        <div>
-          <label class="flex items-center mb-2 cursor-pointer">
+        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+          <label class="flex items-center mb-3 cursor-pointer">
             <input
               type="checkbox"
               id="perfCountersCheckbox"
               onchange="generateTraceCommands()"
-              class="mr-2"
+              class="mr-3 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
             />
-            <span class="font-medium text-gray-700 text-sm"
+            <span class="font-semibold text-slate-800 text-sm"
               >Performance Counters</span
             >
             <span
-              class="text-blue-600 cursor-help ml-2 text-sm"
+              class="text-indigo-600 cursor-help ml-2 text-sm font-medium"
               title="Enable hardware performance counter events">(?)</span
             >
           </label>
-          <div class="ml-6 hidden" id="perfCountersOptions">
-            <div class="grid grid-cols-1 gap-1">
+          <div class="ml-7 hidden" id="perfCountersOptions">
+            <div class="grid grid-cols-1 gap-2">
               <label class="flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   id="perfCpuCyclesCheckbox"
                   onchange="generateTraceCommands()"
-                  class="mr-2"
+                  class="mr-2 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
                 />
-                <span class="text-gray-700 text-sm">CPU Cycles</span>
+                <span class="text-slate-700 text-sm font-medium"
+                  >CPU Cycles</span
+                >
               </label>
               <label class="flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   id="perfCacheMissesCheckbox"
                   onchange="generateTraceCommands()"
-                  class="mr-2"
+                  class="mr-2 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
                 />
-                <span class="text-gray-700 text-sm">Cache Misses</span>
+                <span class="text-slate-700 text-sm font-medium"
+                  >Cache Misses</span
+                >
               </label>
               <label class="flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   id="perfBranchMissesCheckbox"
                   onchange="generateTraceCommands()"
-                  class="mr-2"
+                  class="mr-2 w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2"
                 />
-                <span class="text-gray-700 text-sm">Branch Misses</span>
+                <span class="text-slate-700 text-sm font-medium"
+                  >Branch Misses</span
+                >
               </label>
             </div>
           </div>
